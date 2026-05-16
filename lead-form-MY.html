@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Book a Free Consultation — AgentMate</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0c0e16;--bg2:#13151f;--bg3:#191c28;
+  --surface:#1e2130;--surface2:#252840;
+  --border:#2a2f47;--border2:#343a56;
+  --accent:#4f8ef7;--accent2:#7b5cf0;
+  --accentg:linear-gradient(135deg,#4f8ef7,#7b5cf0);
+  --success:#34d399;--warning:#fbbf24;--danger:#f87171;
+  --text:#e8eaf2;--text2:#9aa0b8;--text3:#555c7a;
+  --radius:14px;--radius-sm:9px;--radius-xs:6px;
+  --font-main:'Sora',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.55}
+button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit;color:inherit}
+input,select,textarea{font-family:var(--font-body);font-size:inherit;color:var(--text);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;width:100%;outline:none;transition:border .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,.14)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+select option{background:var(--surface)}
+a{color:inherit;text-decoration:none}
+
+/* Layout */
+#wrap{max-width:480px;margin:0 auto;padding:24px 16px 48px;min-height:100vh;display:flex;flex-direction:column}
+
+/* Header */
+.lf-header{text-align:center;padding:8px 0 28px}
+.lf-logo{font-family:var(--font-main);font-weight:800;font-size:1.3rem;letter-spacing:-.03em;background:var(--accentg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.lf-headline{font-family:var(--font-main);font-weight:700;font-size:1.35rem;color:var(--text);line-height:1.3;margin-bottom:6px}
+.lf-sub{font-size:.88rem;color:var(--text2);line-height:1.55}
+
+/* Agent strip */
+.agent-ghost{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.ghost-circle{width:40px;height:40px;border-radius:50%;background:var(--border2);flex-shrink:0;animation:shimmer 1.3s infinite;}
+.ghost-lines{flex:1;display:flex;flex-direction:column;gap:7px;}
+.ghost-line{height:11px;border-radius:6px;background:var(--border2);animation:shimmer 1.3s infinite;}
+@keyframes shimmer{0%,100%{opacity:.35;}50%{opacity:.8;}}
+.agent-strip{background:linear-gradient(135deg,rgba(79,142,247,.08),rgba(123,92,240,.08));border:1px solid rgba(79,142,247,.2);border-radius:var(--radius);padding:12px 16px;display:none;align-items:center;gap:12px;margin-bottom:16px;}
+.agent-avatar{width:40px;height:40px;border-radius:50%;background:var(--accentg);display:flex;align-items:center;justify-content:center;font-family:var(--font-main);font-weight:700;font-size:.9rem;color:#fff;flex-shrink:0;}
+
+/* Progress */
+.progress-bar{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px;position:relative}
+.pb-step{display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1}
+.pb-circle{width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--font-main);font-weight:700;font-size:.78rem;color:var(--text3);transition:all .3s}
+.pb-circle.active{background:var(--accentg);border-color:transparent;color:#fff;box-shadow:0 0 16px rgba(79,142,247,.35)}
+.pb-circle.done{background:rgba(52,211,153,.15);border-color:var(--success);color:var(--success)}
+.pb-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.03em;white-space:nowrap;transition:color .3s}
+.pb-label.active{color:var(--accent)}
+.pb-label.done{color:var(--success)}
+.pb-line{flex:1;height:2px;background:var(--border);margin:0 4px;margin-bottom:22px;transition:background .3s;max-width:60px}
+.pb-line.done{background:var(--success)}
+
+/* Card */
+.step-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:22px 20px;flex:1}
+.step-title{font-family:var(--font-main);font-weight:700;font-size:1.05rem;margin-bottom:4px}
+.step-sub{font-size:.83rem;color:var(--text2);margin-bottom:20px;line-height:1.5}
+
+/* Form groups */
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.fg .hint{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* Chips */
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.chip{background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:11px 13px;font-size:.85rem;font-weight:600;color:var(--text2);cursor:pointer;text-align:center;transition:all .2s;-webkit-user-select:none;user-select:none;}
+.chip:active{transform:scale(.97);}
+.chip.sel{border-color:var(--accent);background:rgba(79,142,247,.1);color:var(--accent);box-shadow:0 0 0 1px rgba(79,142,247,.2);}
+
+/* Buttons */
+.btn-next{width:100%;padding:14px;background:var(--accentg);color:#fff;border-radius:var(--radius-sm);font-family:var(--font-main);font-weight:700;font-size:.95rem;border:none;cursor:pointer;transition:opacity .2s,transform .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+.btn-next:active{opacity:.85;transform:scale(.98)}
+.btn-next:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-back{width:100%;padding:12px;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);font-weight:600;font-size:.88rem;cursor:pointer;margin-top:10px;transition:background .2s,border-color .2s}
+.btn-back:active{background:var(--surface)}
+.btn-skip{width:100%;padding:10px;background:transparent;border:none;color:var(--text3);font-size:.83rem;cursor:pointer;margin-top:8px;text-decoration:underline;text-underline-offset:3px}
+
+/* Calendar */
+.cal-wrap{margin-bottom:14px}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-month-label{font-family:var(--font-main);font-weight:700;font-size:.95rem;color:var(--text)}
+.cal-nav{width:32px;height:32px;border-radius:50%;background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:background .15s,border-color .15s}
+.cal-nav:hover{background:var(--surface2);border-color:var(--border2)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{text-align:center;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em;padding-bottom:4px}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .15s;color:var(--text2);background:var(--surface)}
+.cal-day:hover:not(.disabled):not(.empty){background:var(--surface2);border-color:var(--border2)}
+.cal-day.today{border-color:var(--accent);color:var(--accent)}
+.cal-day.selected{background:var(--accentg);color:#fff;border-color:transparent;box-shadow:0 0 12px rgba(79,142,247,.35)}
+.cal-day.disabled{opacity:.25;cursor:not-allowed;background:transparent}
+.cal-day.empty{background:transparent;cursor:default}
+.cal-day.unavail{opacity:.2;cursor:not-allowed}
+.selected-date-display{background:rgba(79,142,247,.08);border:1.5px solid rgba(79,142,247,.25);border-radius:var(--radius-sm);padding:10px 14px;font-size:.85rem;color:var(--accent);font-weight:600;margin-bottom:14px;display:none}
+.no-avail-notice{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:var(--radius-sm);padding:10px 14px;font-size:.82rem;color:var(--warning);margin-bottom:14px;line-height:1.5}
+
+/* Summary */
+.summary-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:16px;margin-bottom:18px;}
+.summary-lbl{font-size:.68rem;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
+.srow{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.srow:last-child{border-bottom:none;padding-bottom:0;}
+.skey{color:var(--text3);min-width:72px;flex-shrink:0;}
+.sval{color:var(--text);font-weight:600;flex:1;}
+.sval.accent{color:var(--accent);}
+
+/* Thank you screen */
+#screen-thanks{display:none;text-align:center;padding:40px 20px;flex:1;flex-direction:column;align-items:center;justify-content:center}
+#screen-thanks.visible{display:flex}
+.thanks-icon{width:72px;height:72px;border-radius:22px;background:rgba(52,211,153,.12);border:1.5px solid rgba(52,211,153,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.thanks-title{font-family:var(--font-main);font-weight:800;font-size:1.4rem;margin-bottom:8px}
+.thanks-sub{font-size:.9rem;color:var(--text2);line-height:1.6;max-width:320px;margin:0 auto}
+.thanks-detail{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-top:20px;text-align:left;width:100%;max-width:360px}
+.td-row{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);gap:12px}
+.td-row:last-child{border-bottom:none}
+.td-label{font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.td-val{font-size:.83rem;color:var(--text);font-weight:600;text-align:right}
+
+/* Consent */
+.consent{font-size:.75rem;color:var(--text3);line-height:1.6;text-align:center;margin-bottom:18px;}
+
+/* Error */
+.field-error{font-size:11px;color:var(--danger);margin-top:4px}
+.err-box{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:var(--radius-xs);padding:10px 13px;font-size:.82rem;color:var(--danger);margin-bottom:16px;display:none;}
+input.has-error,select.has-error{border-color:var(--danger) !important}
+
+/* Spinner */
+.spinner{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:9px 20px;border-radius:30px;font-size:.84rem;font-weight:500;z-index:200;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.4);display:flex;align-items:center;gap:8px;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{border-color:var(--success);color:var(--success);background:rgba(52,211,153,.08)}
+#toast.error{border-color:var(--danger);color:var(--danger);background:rgba(248,113,113,.08)}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <!-- Header -->
+  <div class="lf-header" id="hero-block">
+    <div class="lf-logo">AgentMate</div>
+    <div class="lf-headline">Book a Free Consultation</div>
+    <div class="lf-sub">Tell us a bit about yourself and we'll match you with the right coverage.</div>
+  </div>
+
+  <!-- Agent ghost / strip -->
+  <div class="agent-ghost" id="agent-ghost">
+    <div class="ghost-circle"></div>
+    <div class="ghost-lines">
+      <div class="ghost-line" style="width:55%;"></div>
+      <div class="ghost-line" style="width:38%;"></div>
+    </div>
+  </div>
+  <div class="agent-strip" id="agent-strip">
+    <div class="agent-avatar" id="agent-initials">A</div>
+    <div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--text);" id="agent-name-el">Your Agent</div>
+      <div style="font-size:.76rem;color:var(--text2);margin-top:2px;">Licensed Insurance Agent · AgentMate</div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar" id="progress-bar">
+    <div class="pb-step">
+      <div class="pb-circle active" id="pb1">1</div>
+      <div class="pb-label active" id="pbl1">About You</div>
+    </div>
+    <div class="pb-line" id="pl1"></div>
+    <div class="pb-step">
+      <div class="pb-circle" id="pb2">2</div>
+      <div class="pb-label" id="pbl2">Coverage</div>
+    </div>
+    <div class="pb-line" id="pl2"></div>
+    <div class="pb-step">
+      <div class="pb-circle" id="pb3">3</div>
+      <div class="pb-label" id="pbl3">Pick a Slot</div>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <div id="step-1" class="step-card">
+    <div class="step-title">About You</div>
+    <div class="step-sub">We'll use this to get in touch with you.</div>
+    <div class="err-box" id="e1"></div>
+
+    <div class="fg">
+      <label>Full Name <span style="color:var(--danger)">*</span></label>
+      <input type="text" id="f-name" placeholder="e.g. Ahmad bin Razak" maxlength="80" autocomplete="name"/>
+      <div class="field-error" id="err-name"></div>
+    </div>
+    <div class="fg">
+      <label>Phone Number <span style="color:var(--danger)">*</span></label>
+      <input type="tel" id="f-phone" placeholder="e.g. 0123456789" maxlength="25" autocomplete="tel"/>
+      <div class="field-error" id="err-phone"></div>
+    </div>
+    <div class="fg">
+      <label>Email Address <span style="font-size:.7rem;color:var(--text3);font-weight:400;text-transform:none;">(optional)</span></label>
+      <input type="email" id="f-email" placeholder="e.g. ahmad@email.com" maxlength="120" autocomplete="email"/>
+    </div>
+
+    <button class="btn-next" id="btn-next-1" onclick="goStep2()">
+      Continue
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+  <!-- Step 2 -->
+  <div id="step-2" class="step-card" style="display:none">
+    <div class="step-title">Coverage</div>
+    <div class="step-sub">What type of insurance are you interested in?</div>
+    <div class="err-box" id="e2"></div>
+
+    <div class="fg">
+      <label>Policy Type <span style="color:var(--danger)">*</span></label>
+      <div class="chip-grid">
+        <div class="chip" onclick="pickPolicy(this,'Life Insurance')">🛡️ Life Insurance</div>
+        <div class="chip" onclick="pickPolicy(this,'Medical Card')">🏥 Medical Card</div>
+        <div class="chip" onclick="pickPolicy(this,'Critical Illness')">❤️ Critical Illness</div>
+        <div class="chip" onclick="pickPolicy(this,'Investment-Linked')">📈 Investment-Linked</div>
+        <div class="chip" onclick="pickPolicy(this,'Takaful')">🕌 Takaful</div>
+        <div class="chip" onclick="pickPolicy(this,'Other')">✏️ Other</div>
+      </div>
+      <div id="other-policy-wrap" style="display:none;margin-top:10px;">
+        <input type="text" id="f-other-policy" placeholder="Please describe…" maxlength="100"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Message <span style="font-size:.7rem;color:var(--text3);font-weight:400;text-transform:none;">(optional)</span></label>
+      <textarea id="f-message" rows="3" placeholder="Any questions, budget or specific needs?" maxlength="500" style="background:var(--surface);"></textarea>
+    </div>
+
+    <button class="btn-next" onclick="goStep3()">
+      Continue
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <button class="btn-back" onclick="goBack(1)">← Back</button>
+  </div>
+
+  <!-- Step 3 -->
+  <div id="step-3" class="step-card" style="display:none">
+    <div class="step-title">Pick a Slot</div>
+    <div class="step-sub">Choose your preferred date and time — or skip to have your agent reach out.</div>
+
+    <!-- No availability notice (shown when agent has no schedule set) -->
+    <div class="no-avail-notice" id="no-avail-notice" style="display:none;">
+      📅 This agent hasn't set their schedule yet. Submit and they'll contact you to arrange a time.
+    </div>
+
+    <!-- Calendar -->
+    <div class="fg" id="cal-section">
+      <label>Date <span style="color:var(--danger)">*</span></label>
+      <div class="cal-wrap">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="calNav(-1)" aria-label="Previous month">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="cal-month-label" id="cal-month-label">—</div>
+          <button class="cal-nav" onclick="calNav(1)" aria-label="Next month">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="cal-grid" id="cal-dow-row">
+          <div class="cal-dow">Su</div><div class="cal-dow">Mo</div><div class="cal-dow">Tu</div>
+          <div class="cal-dow">We</div><div class="cal-dow">Th</div><div class="cal-dow">Fr</div><div class="cal-dow">Sa</div>
+        </div>
+        <div class="cal-grid" id="cal-days"></div>
+      </div>
+    </div>
+
+    <!-- Selected date display -->
+    <div class="selected-date-display" id="selected-date-display">📅 <span id="selected-date-text"></span></div>
+
+    <!-- Time -->
+    <div class="fg" id="time-wrap" style="display:none">
+      <label>Time <span style="color:var(--danger)">*</span></label>
+      <select id="f-time" onchange="onTimeChange()">
+        <option value="">Select a time…</option>
+      </select>
+      <div class="hint">All times are in Malaysia time (MYT).</div>
+    </div>
+
+    <div class="field-error" style="margin-top:4px" id="err-slot"></div>
+
+    <button class="btn-next" id="btn-submit" onclick="submitForm()">
+      <span id="submit-label">Submit Request 🚀</span>
+      <div class="spinner" id="submit-spinner" style="display:none"></div>
+    </button>
+    <button class="btn-skip" onclick="skipSlot()">Skip — just have my agent contact me</button>
+    <button class="btn-back" onclick="goBack(2)">← Back</button>
+  </div>
+
+  <!-- Thank you -->
+  <div id="screen-thanks">
+    <div class="thanks-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="thanks-title">Request Sent! 🎉</div>
+    <div class="thanks-sub" id="thanks-sub-text">Your agent has been notified and will reach out shortly via WhatsApp or call.</div>
+    <div class="thanks-detail" id="thanks-detail"></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── Config ───────────────────────────────────────────────────────────────────
+const SB_URL    = 'https://nllilnylnaakxtqofcvf.supabase.co';
+const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbGlsbnlsbmFha3h0cW9mY3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3OTEwMTAsImV4cCI6MjA5MzM2NzAxMH0.Xir2VxcGZ29yJ0quVm01e7FfMuXmsOgD-l2HKSEnDa0';
+const BOT_TOKEN = '8477097128:AAER4vakYUqBlWfyAL3qoBMmxw0qGZyQKwA';
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let agentRef      = null;   // raw ?ref= value (the Telegram ID / numeric chat_id)
+let agentProfile  = null;   // { telegram_id, availability, agent_name } — telegram_id is the Telegram numeric chat_id
+let selectedPolicy = '';
+let selectedDate  = null;
+let skipMode      = false;
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(location.search);
+  agentRef = params.get('ref') || '';
+
+  if (!agentRef) {
+    document.getElementById('agent-ghost').style.display = 'none';
+    return;
+  }
+
+  try {
+    const headers = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+
+    // Try 1: fetch by telegram_id column
+    let row = null;
+    const res1 = await fetch(
+      SB_URL + '/rest/v1/licenses?telegram_id=eq.' + encodeURIComponent(agentRef) +
+      '&select=agent_name,availability,telegram_id&limit=1',
+      { headers }
+    );
+    const data1 = await res1.json();
+    if (data1 && data1.length > 0) row = data1[0];
+
+    // Try 2: fallback — fetch by agent_id (MY version stores Telegram ID here too)
+    if (!row) {
+      const res2 = await fetch(
+        SB_URL + '/rest/v1/licenses?agent_id=eq.' + encodeURIComponent(agentRef) +
+        '&select=agent_name,availability,telegram_id&limit=1',
+        { headers }
+      );
+      const data2 = await res2.json();
+      if (data2 && data2.length > 0) row = data2[0];
+    }
+
+    let avail = null;
+    let agentName = 'Your Agent';
+    let telegramId = null; // US-pattern: start null, only set from DB telegram_id
+
+    if (row) {
+      agentName  = row.agent_name  || 'Your Agent';
+      telegramId = row.telegram_id || null;  // US-pattern: no fallback to agentRef/agent_id
+
+      // Robust availability parsing — handles string, double-stringified, or plain object
+      if (row.availability) {
+        try {
+          avail = typeof row.availability === 'string'
+            ? JSON.parse(row.availability)
+            : row.availability;
+          if (typeof avail === 'string') avail = JSON.parse(avail);
+        } catch(e) {
+          console.warn('[LeadForm] availability parse error:', e);
+        }
+      }
+      console.log('[LeadForm] Agent loaded:', agentName, '| avail:', JSON.stringify(avail));
+    } else {
+      console.warn('[LeadForm] No license row found for ref:', agentRef);
+    }
+
+    agentProfile = { telegram_id: telegramId, availability: avail, agent_name: agentName };
+
+  } catch(e) {
+    console.warn('[LeadForm] fetch error:', e);
+    agentProfile = { telegram_id: null, availability: null, agent_name: 'Your Agent' };  // US-pattern: no fallback
+  }
+
+  // Update agent strip UI
+  document.getElementById('agent-ghost').style.display = 'none';
+  const nameEl = document.getElementById('agent-name-el');
+  const initEl = document.getElementById('agent-initials');
+  nameEl.textContent = agentProfile.agent_name;
+  initEl.textContent = agentProfile.agent_name.trim().charAt(0).toUpperCase();
+  document.getElementById('agent-strip').style.display = 'flex';
+});
+
+// ─── Progress ─────────────────────────────────────────────────────────────────
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('step-'+i).style.display = i===n ? 'block' : 'none';
+    const circ = document.getElementById('pb'+i);
+    const lbl  = document.getElementById('pbl'+i);
+    if (i < n)      { circ.className='pb-circle done'; lbl.className='pb-label done'; }
+    else if (i===n) { circ.className='pb-circle active'; lbl.className='pb-label active'; }
+    else            { circ.className='pb-circle'; lbl.className='pb-label'; }
+    if (i < 3) {
+      const line = document.getElementById('pl'+i);
+      line.className = 'pb-line' + (i < n ? ' done' : '');
+    }
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function goStep2() {
+  const name  = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  let ok = true;
+  if (!name)  { showFieldErr('err-name','f-name','Name is required'); ok=false; }
+  else        { clearFieldErr('err-name','f-name'); }
+  if (!phone) { showFieldErr('err-phone','f-phone','Phone number is required'); ok=false; }
+  else        { clearFieldErr('err-phone','f-phone'); }
+  if (!ok) return;
+  setStep(2);
+}
+
+function goStep3() {
+  const e2 = document.getElementById('e2');
+  e2.style.display = 'none';
+
+  if (!selectedPolicy) {
+    e2.textContent = 'Please select a coverage type.';
+    e2.style.display = 'block';
+    return;
+  }
+  if (selectedPolicy === 'Other' && !document.getElementById('f-other-policy').value.trim()) {
+    e2.textContent = 'Please describe the coverage type.';
+    e2.style.display = 'block';
+    return;
+  }
+
+  // Reset slot state
+  selectedDate = null;
+  skipMode = false;
+  document.getElementById('selected-date-display').style.display = 'none';
+  document.getElementById('time-wrap').style.display = 'none';
+  document.getElementById('f-time').innerHTML = '<option value="">Select a time…</option>';
+  document.getElementById('err-slot').textContent = '';
+
+  // Show/hide calendar based on availability
+  const avail = agentProfile?.availability;
+  const hasAvail = avail && avail.days && avail.days.length > 0;
+
+  document.getElementById('no-avail-notice').style.display = hasAvail ? 'none' : 'block';
+  document.getElementById('cal-section').style.display = hasAvail ? 'block' : 'none';
+
+  if (hasAvail) initCalendar();
+  setStep(3);
+}
+
+function goBack(n) { setStep(n); }
+
+function pickPolicy(el, val) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedPolicy = val;
+  document.getElementById('other-policy-wrap').style.display = val === 'Other' ? 'block' : 'none';
+  if (val !== 'Other') document.getElementById('f-other-policy').value = '';
+}
+
+function showFieldErr(errId, inputId, msg) {
+  document.getElementById(errId).textContent = msg;
+  document.getElementById(inputId)?.classList.add('has-error');
+}
+function clearFieldErr(errId, inputId) {
+  document.getElementById(errId).textContent = '';
+  document.getElementById(inputId)?.classList.remove('has-error');
+}
+
+// ─── Calendar ─────────────────────────────────────────────────────────────────
+let calYear  = null;
+let calMonth = null;
+
+const DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTH_NAMES = ['January','February','March','April','May','June',
+                     'July','August','September','October','November','December'];
+
+function initCalendar() {
+  const now = new Date();
+  calYear  = now.getFullYear();
+  calMonth = now.getMonth();
+  renderCalendar();
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('cal-month-label').textContent = `${MONTH_NAMES[calMonth]} ${calYear}`;
+
+  const avail     = agentProfile?.availability;
+  const availDays = avail?.days || [];  // e.g. ['Mon','Tue','Wed']
+
+  const today    = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMo = new Date(calYear, calMonth+1, 0).getDate();
+
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+
+  for (let d = 1; d <= daysInMo; d++) {
+    const cellDate = new Date(calYear, calMonth, d);
+    const dayName  = DAY_NAMES[cellDate.getDay()];
+    const isPast   = cellDate < today;
+    const isToday  = cellDate.getTime() === today.getTime();
+    const isUnavail = availDays.length > 0 && !availDays.includes(dayName);
+    const isSel    = selectedDate && cellDate.getTime() === selectedDate.getTime();
+
+    let cls = 'cal-day';
+    if (isPast)        cls += ' disabled';
+    else if (isUnavail) cls += ' unavail';
+    if (isToday)       cls += ' today';
+    if (isSel)         cls += ' selected';
+
+    const clickable = !isPast && !isUnavail;
+    html += `<div class="${cls}" ${clickable ? `onclick="pickDate(${calYear},${calMonth},${d})"` : ''}>${d}</div>`;
+  }
+
+  document.getElementById('cal-days').innerHTML = html;
+}
+
+function pickDate(y, m, d) {
+  selectedDate = new Date(y, m, d);
+  skipMode = false;
+  document.getElementById('err-slot').textContent = '';
+
+  const label = selectedDate.toLocaleDateString('en-MY', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('selected-date-text').textContent = label;
+  document.getElementById('selected-date-display').style.display = '';
+
+  populateTimeDropdown();
+  document.getElementById('time-wrap').style.display = '';
+  renderCalendar();
+}
+
+function populateTimeDropdown() {
+  const avail = agentProfile?.availability;
+  const start = avail?.start ?? 9;
+  const end   = avail?.end   ?? 17;
+  const sel   = document.getElementById('f-time');
+  sel.innerHTML = '<option value="">Select a time…</option>';
+  for (let h = start; h <= end; h++) {
+    const hh   = String(h).padStart(2,'0');
+    const ampm = h < 12 ? 'AM' : 'PM';
+    const h12  = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+    sel.innerHTML += `<option value="${h}">${h12}:00 ${ampm} (${hh}:00)</option>`;
+  }
+}
+
+function onTimeChange() {
+  document.getElementById('err-slot').textContent = '';
+}
+
+function buildSelectedISO() {
+  if (!selectedDate) return null;
+  const hour = parseInt(document.getElementById('f-time').value);
+  if (isNaN(hour)) return null;
+  const d = new Date(selectedDate);
+  d.setHours(hour, 0, 0, 0);
+  return d.toISOString();
+}
+
+function skipSlot() {
+  skipMode = true;
+  selectedDate = null;
+  submitForm();
+}
+
+// ─── Submit ───────────────────────────────────────────────────────────────────
+async function submitForm() {
+  const name   = document.getElementById('f-name').value.trim();
+  const phone  = document.getElementById('f-phone').value.trim();
+  const email  = document.getElementById('f-email').value.trim();
+  const rawPol = selectedPolicy;
+  const policy = rawPol === 'Other'
+    ? (document.getElementById('f-other-policy').value.trim() || 'Other')
+    : rawPol;
+  const message = document.getElementById('f-message').value.trim();
+
+  // Validate slot unless skipping or no availability
+  const avail = agentProfile?.availability;
+  const hasAvail = avail && avail.days && avail.days.length > 0;
+
+  if (!skipMode && hasAvail) {
+    if (!selectedDate) {
+      document.getElementById('err-slot').textContent = 'Please pick a date or skip.';
+      return;
+    }
+    if (!document.getElementById('f-time').value) {
+      document.getElementById('err-slot').textContent = 'Please select a time.';
+      return;
+    }
+  }
+
+  const selectedSlot = (skipMode || !hasAvail) ? null : buildSelectedISO();
+
+  setSubmitting(true);
+
+  // 1. Insert into clients table — fire and forget, never block success
+  const userId = agentProfile?.telegram_id || agentRef || '';
+  if (userId) {
+    sbPOST('/rest/v1/clients', {
+      user_id:        userId,
+      full_name:      name,
+      phone:          phone,
+      email:          email  || null,
+      policy_type:    policy || null,
+      notes:          message || null,
+      preferred_slot: selectedSlot || null,
+      status:         'Lead',
+    }).catch(e => console.warn('[LeadForm] DB insert failed (non-blocking):', e));
+  }
+
+  // 2. Telegram notification — fire and forget
+  sendTelegram(name, phone, email, policy, message, selectedSlot)
+    .catch(e => console.warn('[LeadForm] Telegram failed (non-blocking):', e));
+
+  // 3. Always show success immediately — don't wait for network
+  showThanks(name, phone, policy, selectedSlot);
+}
+
+async function sbPOST(path, body) {
+  const res = await fetch(SB_URL + path, {
+    method: 'POST',
+    headers: {
+      apikey:         SB_KEY,
+      Authorization:  'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      Prefer:         'return=minimal',
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    console.warn('[LeadForm] Supabase error:', res.status, txt);
+  }
+}
+
+async function sendTelegram(name, phone, email, policy, message, slot) {
+  // US-pattern: use telegram_id directly from agentProfile — no fallback chains.
+  // If telegram_id is null/empty, skip silently. Never fall back to agent_id.
+  const chatId = agentProfile?.telegram_id || null;
+  if (!BOT_TOKEN || !chatId) return;
+
+  let msg = `🔔 NEW LEAD\n\n`;
+  msg += `👤 ${name}\n`;
+  msg += `📱 ${phone}\n`;
+  if (email)   msg += `📧 ${email}\n`;
+  if (policy)  msg += `🛡️ ${policy}\n`;
+  if (slot)    msg += `📅 ${formatSlot(slot)}\n`;
+  if (message) msg += `\n💬 "${message}"`;
+  msg += `\n\n⏰ ${new Date().toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' })}`;
+  msg += `\n_via AgentMate Lead Form_`;
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: msg }),
+    });
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      console.warn('[LeadForm] Telegram API error:', res.status, errBody);
+    } else {
+      console.log('[LeadForm] Telegram sent to chatId:', chatId);
+    }
+  } catch(e) {
+    console.warn('[LeadForm] Telegram send failed:', e);
+  }
+}
+
+function formatSlot(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString('en-MY', {
+      timeZone: 'Asia/Kuala_Lumpur',
+      weekday:'short', month:'short', day:'numeric',
+      hour:'numeric', minute:'2-digit'
+    });
+  } catch { return iso; }
+}
+
+function setSubmitting(on) {
+  const btn     = document.getElementById('btn-submit');
+  const label   = document.getElementById('submit-label');
+  const spinner = document.getElementById('submit-spinner');
+  btn.disabled          = on;
+  label.style.display   = on ? 'none' : 'inline';
+  spinner.style.display = on ? 'block' : 'none';
+}
+
+function showThanks(name, phone, policy, slot) {
+  [1,2,3].forEach(i => { document.getElementById('step-'+i).style.display='none'; });
+  document.getElementById('progress-bar').style.display = 'none';
+  document.getElementById('hero-block').style.display   = 'none';
+  document.getElementById('agent-ghost').style.display  = 'none';
+  document.getElementById('agent-strip').style.display  = 'none';
+
+  const d = document.getElementById('thanks-detail');
+  let rows = `
+    <div class="td-row"><span class="td-label">Name</span><span class="td-val">${esc(name)}</span></div>
+    <div class="td-row"><span class="td-label">Phone</span><span class="td-val">${esc(phone)}</span></div>`;
+  if (policy) rows += `<div class="td-row"><span class="td-label">Interest</span><span class="td-val">${esc(policy)}</span></div>`;
+  if (slot)   rows += `<div class="td-row"><span class="td-label">Slot</span><span class="td-val">${formatSlot(slot)}</span></div>`;
+  else        rows += `<div class="td-row"><span class="td-label">Next step</span><span class="td-val">Agent will contact you</span></div>`;
+  d.innerHTML = rows;
+
+  document.getElementById('thanks-sub-text').textContent = slot
+    ? `Your consultation is booked for ${formatSlot(slot)}. Your agent will confirm shortly via WhatsApp or call.`
+    : `Your agent has been notified and will reach out to you at ${phone} shortly via WhatsApp or call.`;
+
+  const thanks = document.getElementById('screen-thanks');
+  thanks.style.display = 'flex';
+  thanks.classList.add('visible');
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show' + (type ? ' '+type : '');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => { t.className=''; }, 3500);
+}
+</script>
+</body>
+</html>
