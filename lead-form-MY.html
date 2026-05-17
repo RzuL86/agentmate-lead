@@ -452,16 +452,27 @@ const ALL_POLICY_CHIPS = [
 function renderServiceChips() {
   const grid = document.getElementById('policy-chip-grid');
   if (!grid) return;
-  // Determine which chips to show — null = all, array = filter
+  const CUSTOM_ICON = '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>';
+  const knownLabels = new Set(ALL_POLICY_CHIPS.map(c => c.label));
+  // Determine which chips to show — null = all standard, array = filter + custom
   const allowed = agentProfile && Array.isArray(agentProfile.services_offered) && agentProfile.services_offered.length > 0
-    ? new Set(agentProfile.services_offered)
-    : null; // null = show all
-  const chips = allowed ? ALL_POLICY_CHIPS.filter(c => allowed.has(c.label)) : ALL_POLICY_CHIPS;
-  // Fallback: always show at least Other if nothing matches
-  const toRender = chips.length > 0 ? chips : ALL_POLICY_CHIPS;
+    ? agentProfile.services_offered
+    : null; // null = show all standard
+  let toRender;
+  if (!allowed) {
+    toRender = ALL_POLICY_CHIPS;
+  } else {
+    // Known chips that are allowed
+    const standard = ALL_POLICY_CHIPS.filter(c => allowed.includes(c.label));
+    // Custom labels (not in known list)
+    const custom = allowed.filter(l => !knownLabels.has(l)).map(l => ({ label: l, icon: CUSTOM_ICON }));
+    toRender = [...standard, ...custom];
+  }
+  // Fallback: always show standard chips if nothing matches
+  if (toRender.length === 0) toRender = ALL_POLICY_CHIPS;
   grid.innerHTML = toRender.map(c => `
     <div class="chip" onclick="pickPolicy(this,'${c.label.replace(/'/g,"\\'")}')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;">${c.icon}</svg>${c.label}
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;">${c.icon}</svg>${esc(c.label)}
     </div>`).join('');
   // Re-wire the Other text input visibility
   const otherWrap = document.getElementById('other-policy-wrap');
