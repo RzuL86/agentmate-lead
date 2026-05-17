@@ -217,13 +217,8 @@ input.has-error,select.has-error{border-color:var(--danger) !important}
 
     <div class="fg">
       <label>Policy Type <span style="color:var(--danger)">*</span></label>
-      <div class="chip-grid">
-        <div class="chip" onclick="pickPolicy(this,'Life Insurance')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Life Insurance</div>
-        <div class="chip" onclick="pickPolicy(this,'Medical Card')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Medical Card</div>
-        <div class="chip" onclick="pickPolicy(this,'Critical Illness')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Critical Illness</div>
-        <div class="chip" onclick="pickPolicy(this,'Investment-Linked')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Investment-Linked</div>
-        <div class="chip" onclick="pickPolicy(this,'Takaful')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Takaful</div>
-        <div class="chip" onclick="pickPolicy(this,'Other')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>Other</div>
+      <div class="chip-grid" id="policy-chip-grid">
+        <!-- chips rendered dynamically by renderServiceChips() in goStep2 -->
       </div>
       <div id="other-policy-wrap" style="display:none;margin-top:10px;">
         <input type="text" id="f-other-policy" placeholder="Please describe…" maxlength="100"/>
@@ -338,7 +333,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     let row = null;
     const res1 = await fetch(
       SB_URL + '/rest/v1/licenses?telegram_id=eq.' + encodeURIComponent(agentRef) +
-      '&select=agent_name,display_name,availability,telegram_id&limit=1',
+      '&select=agent_name,display_name,availability,telegram_id,services_offered&limit=1',
       { headers }
     );
     const data1 = await res1.json();
@@ -348,7 +343,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (!row) {
       const res2 = await fetch(
         SB_URL + '/rest/v1/licenses?agent_id=eq.' + encodeURIComponent(agentRef) +
-        '&select=agent_name,display_name,availability,telegram_id&limit=1',
+        '&select=agent_name,display_name,availability,telegram_id,services_offered&limit=1',
         { headers }
       );
       const data2 = await res2.json();
@@ -358,10 +353,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     let avail = null;
     let agentName = 'Your Agent';
     let telegramId = null; // US-pattern: start null, only set from DB telegram_id
+    let servicesOffered = null; // null = show all (backward compat)
 
     if (row) {
       agentName  = row.display_name || row.agent_name  || 'Your Agent';
       telegramId = row.telegram_id || null;  // US-pattern: no fallback to agentRef/agent_id
+
+      // Parse services_offered — null means all services active
+      if (row.services_offered) {
+        try {
+          servicesOffered = typeof row.services_offered === 'string'
+            ? JSON.parse(row.services_offered)
+            : row.services_offered;
+        } catch(e) {
+          console.warn('[LeadForm] services_offered parse error:', e);
+          servicesOffered = null;
+        }
+      }
 
       // Robust availability parsing — handles string, double-stringified, or plain object
       if (row.availability) {
@@ -379,11 +387,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       console.warn('[LeadForm] No license row found for ref:', agentRef);
     }
 
-    agentProfile = { telegram_id: telegramId, availability: avail, agent_name: agentName };
+    agentProfile = { telegram_id: telegramId, availability: avail, agent_name: agentName, services_offered: servicesOffered };
 
   } catch(e) {
     console.warn('[LeadForm] fetch error:', e);
-    agentProfile = { telegram_id: null, availability: null, agent_name: 'Your Agent' };  // US-pattern: no fallback
+    agentProfile = { telegram_id: null, availability: null, agent_name: 'Your Agent', services_offered: null };  // US-pattern: no fallback
   }
 
   // Update agent strip UI
@@ -422,7 +430,46 @@ function goStep2() {
   if (!phone) { showFieldErr('err-phone','f-phone','Phone number is required'); ok=false; }
   else        { clearFieldErr('err-phone','f-phone'); }
   if (!ok) return;
+  renderServiceChips();
   setStep(2);
+}
+
+// ─── Dynamic chip rendering based on agent's services_offered ─────────────────
+const ALL_POLICY_CHIPS = [
+  { label: 'Life Insurance',    icon: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' },
+  { label: 'Medical Card',      icon: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>' },
+  { label: 'Critical Illness',  icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>' },
+  { label: 'Investment-Linked', icon: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>' },
+  { label: 'Takaful',           icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+  { label: 'Auto Insurance',    icon: '<rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>' },
+  { label: 'PA (Personal Accident)', icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
+  { label: 'Home Insurance',    icon: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' },
+  { label: 'Business Insurance',icon: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/>' },
+  { label: 'Travel Insurance',  icon: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>' },
+  { label: 'Other',             icon: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>' },
+];
+
+function renderServiceChips() {
+  const grid = document.getElementById('policy-chip-grid');
+  if (!grid) return;
+  // Determine which chips to show — null = all, array = filter
+  const allowed = agentProfile && Array.isArray(agentProfile.services_offered) && agentProfile.services_offered.length > 0
+    ? new Set(agentProfile.services_offered)
+    : null; // null = show all
+  const chips = allowed ? ALL_POLICY_CHIPS.filter(c => allowed.has(c.label)) : ALL_POLICY_CHIPS;
+  // Fallback: always show at least Other if nothing matches
+  const toRender = chips.length > 0 ? chips : ALL_POLICY_CHIPS;
+  grid.innerHTML = toRender.map(c => `
+    <div class="chip" onclick="pickPolicy(this,'${c.label.replace(/'/g,"\\'")}')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;">${c.icon}</svg>${c.label}
+    </div>`).join('');
+  // Re-wire the Other text input visibility
+  const otherWrap = document.getElementById('other-policy-wrap');
+  if (otherWrap) otherWrap.style.display = 'none';
+  // Reset any previously selected policy chip if it's no longer shown
+  if (selectedPolicy && toRender.every(c => c.label !== selectedPolicy)) {
+    selectedPolicy = '';
+  }
 }
 
 function goStep3() {
